@@ -2,23 +2,23 @@ NAME = cub3D
 
 CC = gcc
 
-CFLAGS = -Wall -Wextra -Werror -Iminilibx-linux -lm
+CFLAGS = -Wall -Wextra -Werror -Iheaders/
 
-SOURCE = main.c
+SOURCE = new_main.c
 OBJ = $(SOURCE:.c=.o)
-LIBRARY = -Lminilibx-linux -lmlx -lXext -lX11 -lm
+LIBRARY = -Lminilibx -lmlx -framework OpenGL -framework AppKit
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@$(MAKE) -C ./minilibx-linux
+	@$(MAKE) -C ./minilibx
 	@$(CC) $(CFLAGS) $(OBJ) $(LIBRARY) -o $(NAME)
 
 %.o: %.c
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	@$(MAKE) -C ./minilibx-linux clean
+	@$(MAKE) -C ./minilibx clean
 	@rm -rf $(OBJ)
 
 fclean: clean
