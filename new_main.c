@@ -89,6 +89,7 @@ void	calc_texture_pixel_color(t_data *data, int x)
 
 void    raycasting_DDA(t_data *data)
 {
+    print_map(data->_map_, data->size_abc);
     while (data->hit == 0)
     {
         if (data->player.sideDistX < data->player.sideDistY)
@@ -103,11 +104,14 @@ void    raycasting_DDA(t_data *data)
             data->player.mapY += data->stepY;
             data->side = 1;
         }
-        if (worldMap[data->player.mapX][data->player.mapY] > 0)
+        printf("%d \n", data->stepX);
+        printf("%d \n", data->stepY);
+        printf("%d \n",data->player.mapX);
+        printf("%d \n",data->player.mapY);
+        if (data->_map_[data->player.mapX][data->player.mapY] == '1')
             data->hit = 1;
     }
 }
-
 
 void    raycasting_continue(t_data *data)
 {
@@ -179,6 +183,8 @@ void    raycasting_starts(t_data *data)
         data->player.cameraX = (2 * data->x / (double)screenWidth) - 1;
         data->player.rayDirX = data->player.dirX + (data->player.planeX * data->player.cameraX);
         data->player.rayDirY = data->player.dirY + (data->player.planeY * data->player.cameraX);
+        printf("%f \n",data->player.rayDirX);
+        printf("%f \n",data->player.rayDirY);
         data->player.mapX = (int)data->player.posX;
         data->player.mapY = (int)data->player.posY;
         if (data->player.rayDirX == 0)
@@ -223,7 +229,7 @@ void    move_r_and_l(int keycode, t_data *data)
 {
     if (keycode == key_D)
     {
-        if (worldMap[(int)(data->player.posX + data->player.planeX)][(int)(data->player.posY + data->player.planeY)] == 0)
+        if (data->_map_[(int)(data->player.posX + data->player.planeX)][(int)(data->player.posY + data->player.planeY)] == '0')
         {
             data->player.posX += data->player.planeX * data->movespeed;
             data->player.posY += data->player.planeY * data->movespeed;
@@ -231,7 +237,7 @@ void    move_r_and_l(int keycode, t_data *data)
     }
     if (keycode == key_A)
     {
-        if (worldMap[(int)(data->player.posX - data->player.planeX)][(int)(data->player.posY - data->player.planeY)] == 0)
+        if (data->_map_[(int)(data->player.posX - data->player.planeX)][(int)(data->player.posY - data->player.planeY)] == '0')
         {
             data->player.posX -= data->player.planeX * data->movespeed;
             data->player.posY -= data->player.planeY * data->movespeed;
@@ -242,16 +248,16 @@ void    move_f_and_b(int keycode, t_data *data)
 {
     if (keycode == key_W)
     {
-        if (worldMap[(int)(data->player.posX + data->player.dirX)][(int)(data->player.posY)] == 0)
+        if (data->_map_[(int)(data->player.posX + data->player.dirX)][(int)(data->player.posY)] == '0')
             data->player.posX += data->player.dirX * data->movespeed;
-        if (worldMap[(int)(data->player.posX)][(int)(data->player.posY + data->player.dirY * 1)] == 0)
+        if (data->_map_[(int)(data->player.posX)][(int)(data->player.posY + data->player.dirY * 1)] == '0')
             data->player.posY += data->player.dirY * data->movespeed;
     }
     if (keycode == key_S)
     {
-        if (worldMap[(int)(data->player.posX - data->player.dirX * 1)][(int)(data->player.posY)] == 0)
+        if (data->_map_[(int)(data->player.posX - data->player.dirX * 1)][(int)(data->player.posY)] == '0')
             data->player.posX -= data->player.dirX * data->movespeed;
-        if (worldMap[(int)(data->player.posX)][(int)(data->player.posY - data->player.dirY * 1)] == 0)
+        if (data->_map_[(int)(data->player.posX)][(int)(data->player.posY - data->player.dirY * 1)] == '0')
             data->player.posY -= data->player.dirY * data->movespeed;
     }
 }
@@ -305,7 +311,6 @@ void    get_figures_datas(t_data *data)
     data->west.data = mlx_get_data_addr(data->west.img, &data->west.bits_per_pixel, &data->west.sizeline, &data->west.endian);
 }
 
-// check this part
 void    get_figures(t_data *data)
 {
     int     x;
@@ -329,12 +334,14 @@ void    get_color_c_and_f(t_data *data)
     data->ceil_color = 0x0000FF;
     data->floor_color = 0xFFFFFF;
 }
-void    init_data(t_data *data)
+void    init_data(t_data *data, t_map_info map_info, t_point *locations)
 {
+    (void)map_info;
+    (void)locations;
 	data->y = 0;
-    data->player.posX = 20;
-    data->player.posY = 12;
-    data->player.dirX = -1;
+    data->player.posX = 2;
+    data->player.posY = 2;
+    data->player.dirX = 1;
     data->player.dirY = 0;
     data->player.planeX = 0;
     data->player.planeY = 0.66;
@@ -364,12 +371,67 @@ void    start_functions(t_data *data)
     mlx_key_hook(data->win_ptr, key_hook, data);
     mlx_hook(data->win_ptr, 17, 0, close_window, NULL);
     mlx_loop(data->mlx_ptr);
+    pause();
+
 }
 
-int main()
+void    copy_map(char **source, char ***dest, t_point size)
 {
+    char **new_dest;
+    int i;
+
+    i = 0;
+    new_dest = *(dest);
+    new_dest = malloc(sizeof(char *) * size.y + 1);
+    printf("%d \n", size.y);
+    while (i < size.y)
+    {
+        new_dest[i] = ft_strdup(source[i]);
+        i++;
+    }
+    new_dest[i] = NULL;
+    *(dest) = new_dest;
+    printf("source   %s\n", source[i]);
+    printf("new_dest %s\n", new_dest[i]);
+}
+
+int main(int argc, char **argv)
+{
+    if (argc != 2) {
+        printf("Kullanım: %s <harita_dosyası>\n", argv[0]);
+        return 1;
+    }
+    int len = ft_strlen(argv[1]);
+    if (len < 4 || ft_strncmp(argv[1] + len - 4, ".cub", 4) != 0) {
+        printf("HATA: Harita dosyasının uzantısı .cub olmalı!\n");
+        return 1;
+    }
+    int fd = open(argv[1], O_RDONLY);
+    if (fd < 0) {
+        printf("Dosya açma hatası\n");
+        return 1;
+    }
     t_data *data = malloc(sizeof(t_data));
-    init_data(data);
+    t_map_info map_info;
+    map_info.maps = NULL;
+    data->_map_ = NULL;
+    t_point *size = malloc(sizeof(t_point));
+    t_point *begin = malloc(sizeof(t_point));
+    size->err = 0;
+    char **lines = read_lines_from_file(fd);
+    if (parse_and_validate_variables(lines, &map_info) == -1)
+	{
+        printf("Hatalı harita bilgileri!\n");
+        return 1;
+    }
+    int fd_copy = open(argv[1], O_RDONLY);
+    checkMap(fd_copy, &map_info.maps, size, &map_info);
+    close(fd_copy);
+    data->size_abc = size;
+    find_starting_point(map_info.maps, size, begin);
+    copy_map(map_info.maps, &data->_map_, *size);
+    flood_fill(map_info.maps, size, begin);
+    init_data(data, map_info, size);
     start_functions(data);
     return 0;
 }

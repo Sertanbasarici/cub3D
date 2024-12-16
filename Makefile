@@ -2,12 +2,11 @@ NAME = cub3D
 
 CC = gcc
 
-CFLAGS = -Wall -Wextra -Werror -Iminilibx-linux -lm
+CFLAGS = -Wall -Wextra -Werror -Iminilibx-linux -lm -g
 
-SOURCE = new_main.c
+SOURCE = 	gnl/get_next_line.c gnl/get_next_line_utils.c new_main.c parser.c map_check.c parse1.c before_map.c
 OBJ = $(SOURCE:.c=.o)
 LIBRARY = -Lminilibx-linux -lmlx -lXext -lX11 -lm
-
 LIBFT = libft/libft.a
 
 all: $(NAME)
