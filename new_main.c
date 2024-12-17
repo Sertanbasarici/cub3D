@@ -104,11 +104,8 @@ void    raycasting_DDA(t_data *data)
             data->player.mapY += data->stepY;
             data->side = 1;
         }
-        printf("%d \n", data->stepX);
-        printf("%d \n", data->stepY);
-        printf("%d \n",data->player.mapX);
-        printf("%d \n",data->player.mapY);
-        if (data->_map_[data->player.mapX][data->player.mapY] == '1')
+        printf("%d \n", data->hit);
+        if (data->_map_[data->player.mapY][data->player.mapX] == '1')
             data->hit = 1;
     }
 }
@@ -178,13 +175,11 @@ void    handle_textures(t_data *data)
 void    raycasting_starts(t_data *data)
 {
     data->x = 0;
-    while (data->x < screenWidth)
+    while (data->x < screenWidth)  
     {
-        data->player.cameraX = (2 * data->x / (double)screenWidth) - 1;
+        data->player.cameraX = (2 * data->x) / (double)screenWidth - 1;
         data->player.rayDirX = data->player.dirX + (data->player.planeX * data->player.cameraX);
         data->player.rayDirY = data->player.dirY + (data->player.planeY * data->player.cameraX);
-        printf("%f \n",data->player.rayDirX);
-        printf("%f \n",data->player.rayDirY);
         data->player.mapX = (int)data->player.posX;
         data->player.mapY = (int)data->player.posY;
         if (data->player.rayDirX == 0)
@@ -209,7 +204,6 @@ int draw_scene(t_data *data)
     mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, data->big_img.img, 0, 0);
     return 0;
 }
-
 int key_press()
 {
     return (0);
@@ -229,7 +223,7 @@ void    move_r_and_l(int keycode, t_data *data)
 {
     if (keycode == key_D)
     {
-        if (data->_map_[(int)(data->player.posX + data->player.planeX)][(int)(data->player.posY + data->player.planeY)] == '0')
+        if (data->_map_[(int)(data->player.posY + data->player.planeY)][(int)(data->player.posX + data->player.planeX)] == '0')
         {
             data->player.posX += data->player.planeX * data->movespeed;
             data->player.posY += data->player.planeY * data->movespeed;
@@ -237,7 +231,7 @@ void    move_r_and_l(int keycode, t_data *data)
     }
     if (keycode == key_A)
     {
-        if (data->_map_[(int)(data->player.posX - data->player.planeX)][(int)(data->player.posY - data->player.planeY)] == '0')
+        if (data->_map_[(int)(data->player.posY - data->player.planeY)][(int)(data->player.posX - data->player.planeX)] == '0')
         {
             data->player.posX -= data->player.planeX * data->movespeed;
             data->player.posY -= data->player.planeY * data->movespeed;
@@ -248,16 +242,16 @@ void    move_f_and_b(int keycode, t_data *data)
 {
     if (keycode == key_W)
     {
-        if (data->_map_[(int)(data->player.posX + data->player.dirX)][(int)(data->player.posY)] == '0')
+        if (data->_map_[(int)(data->player.posY)][(int)(data->player.posX + data->player.dirX)] == '0')
             data->player.posX += data->player.dirX * data->movespeed;
-        if (data->_map_[(int)(data->player.posX)][(int)(data->player.posY + data->player.dirY * 1)] == '0')
+        if (data->_map_[(int)(data->player.posY + data->player.dirY * 1)][(int)(data->player.posX)] == '0')
             data->player.posY += data->player.dirY * data->movespeed;
     }
     if (keycode == key_S)
     {
-        if (data->_map_[(int)(data->player.posX - data->player.dirX * 1)][(int)(data->player.posY)] == '0')
+        if (data->_map_[(int)(data->player.posY)][(int)(data->player.posX - data->player.dirX * 1)] == '0')
             data->player.posX -= data->player.dirX * data->movespeed;
-        if (data->_map_[(int)(data->player.posX)][(int)(data->player.posY - data->player.dirY * 1)] == '0')
+        if (data->_map_[(int)(data->player.posY - data->player.dirY * 1)][(int)(data->player.posX)] == '0')
             data->player.posY -= data->player.dirY * data->movespeed;
     }
 }
@@ -311,14 +305,15 @@ void    get_figures_datas(t_data *data)
     data->west.data = mlx_get_data_addr(data->west.img, &data->west.bits_per_pixel, &data->west.sizeline, &data->west.endian);
 }
 
-void    get_figures(t_data *data)
+void    get_figures(t_data *data, t_map_info *map_info)
 {
     int     x;
     int     y;
-    data->east.img = mlx_xpm_file_to_image(data->mlx_ptr, "textures/east.xpm", &x, &y);
-    data->north.img = mlx_xpm_file_to_image(data->mlx_ptr, "textures/north.xpm", &x, &y);
-    data->south.img = mlx_xpm_file_to_image(data->mlx_ptr, "textures/south.xpm", &x, &y);
-    data->west.img = mlx_xpm_file_to_image(data->mlx_ptr, "textures/west.xpm", &x, &y);
+    printf("%s dfsaf\n", map_info->east_texture);
+    data->east.img = mlx_xpm_file_to_image(data->mlx_ptr, map_info->east_texture, &x, &y);
+    data->north.img = mlx_xpm_file_to_image(data->mlx_ptr, map_info->north_texture, &x, &y);
+    data->south.img = mlx_xpm_file_to_image(data->mlx_ptr, map_info->south_texture, &x, &y);
+    data->west.img = mlx_xpm_file_to_image(data->mlx_ptr, map_info->west_texture, &x, &y);
     if (!(data->east.img) || !(data->north.img) || !(data->south.img) || !(data->west.img)) 
     {
         ft_error(1, "Image error\n");
@@ -334,14 +329,14 @@ void    get_color_c_and_f(t_data *data)
     data->ceil_color = 0x0000FF;
     data->floor_color = 0xFFFFFF;
 }
-void    init_data(t_data *data, t_map_info map_info, t_point *locations)
+void    init_data(t_data *data, t_point *locations, t_point *size)
 {
-    (void)map_info;
-    (void)locations;
+    (void)size;
 	data->y = 0;
-    data->player.posX = 2;
-    data->player.posY = 2;
-    data->player.dirX = 1;
+    data->player.posX = locations->x + 0.01;
+    data->player.posY = locations->y + 0.01;
+    data->_map_[locations->y][locations->x] = '0';
+    data->player.dirX = -1;
     data->player.dirY = 0;
     data->player.planeX = 0;
     data->player.planeY = 0.66;
@@ -359,19 +354,18 @@ void    raycasting(t_data *data)
     mlx_loop_hook(data->mlx_ptr, draw_scene, data);
 }
 
-void    start_functions(t_data *data)
+void    start_functions(t_data *data, t_map_info *map_info)
 {
     data->mlx_ptr = mlx_init();
     data->win_ptr = mlx_new_window(data->mlx_ptr, screenWidth, screenHeight, "new");
     big_img(data);
     get_color_c_and_f(data);
-    get_figures(data);
+    get_figures(data, map_info);
     raycasting(data);
     mlx_hook(data->win_ptr, 2, 1L << 0, key_press, NULL);
     mlx_key_hook(data->win_ptr, key_hook, data);
     mlx_hook(data->win_ptr, 17, 0, close_window, NULL);
     mlx_loop(data->mlx_ptr);
-    pause();
 
 }
 
@@ -381,9 +375,7 @@ void    copy_map(char **source, char ***dest, t_point size)
     int i;
 
     i = 0;
-    new_dest = *(dest);
     new_dest = malloc(sizeof(char *) * size.y + 1);
-    printf("%d \n", size.y);
     while (i < size.y)
     {
         new_dest[i] = ft_strdup(source[i]);
@@ -391,8 +383,32 @@ void    copy_map(char **source, char ***dest, t_point size)
     }
     new_dest[i] = NULL;
     *(dest) = new_dest;
-    printf("source   %s\n", source[i]);
-    printf("new_dest %s\n", new_dest[i]);
+}
+
+char    *adjust_path(char *str)
+{
+    char    *new_str;
+    int     i;
+    int     j;
+
+    j = 0;
+    i = -1;
+    while (str[++i] == ' ');
+    i += 2;
+    new_str = malloc(sizeof(char) * (ft_strlen(str) - i));
+    while (str[i] != '\n')
+        new_str[j++] = str[i++];
+    new_str[j] = '\0';
+    free(str);
+    return (new_str);
+}
+
+void    get_path(t_map_info *map_info)
+{
+    map_info->east_texture = adjust_path(map_info->east_texture);
+    map_info->west_texture = adjust_path(map_info->west_texture);
+    map_info->north_texture = adjust_path(map_info->north_texture);
+    map_info->south_texture = adjust_path(map_info->south_texture);
 }
 
 int main(int argc, char **argv)
@@ -429,9 +445,14 @@ int main(int argc, char **argv)
     close(fd_copy);
     data->size_abc = size;
     find_starting_point(map_info.maps, size, begin);
+    printf("%s \n", map_info.east_texture);
+    printf("%s \n", map_info.west_texture);
+    printf("%s \n", map_info.south_texture);
+    printf("%s \n", map_info.north_texture);
     copy_map(map_info.maps, &data->_map_, *size);
+    get_path(&map_info);
     flood_fill(map_info.maps, size, begin);
-    init_data(data, map_info, size);
-    start_functions(data);
+    init_data(data, begin, size);
+    start_functions(data, &map_info);
     return 0;
 }

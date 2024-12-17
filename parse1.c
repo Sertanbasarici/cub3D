@@ -2,75 +2,87 @@
 #include "cub3D.h"
 
 
-void	checkMap(int fd, char ***map_out, t_point *size_out, t_map_info *map_info) 
+void	checkMap(int fd, char ***map_out, t_point *size_out, t_map_info *map_info)
 {
 	char *line;
 	char **temp_map = NULL;
 	int row = 0;
 	bool is_map_started = false;
 	t_point *map_start_and_end = malloc(sizeof(t_point));
-
-	while ((line = get_next_line(fd))) 
+	int no_count = 0, so_count = 0, ea_count = 0, we_count = 0;
+	int f_count = 0, c_count = 0;
+	while ((line = get_next_line(fd)))
 	{
-		if(line[0] == '\n' && !is_map_started)
-			continue;
-		if (ft_strstr(line, "F ")) 
-		{
-			map_info->floor_color = ft_strdup(line + 2);
-			map_info->f_exists = true;
-			
-		} 
-		if (ft_strstr(line, "C ")) 
-		{
-			map_info->ceiling_color = ft_strdup(line + 2);
-			map_info->c_exists = true;
-		}
-		
-		if (ft_strstr(line, "NO ")) 
-		{
-			map_info->north_texture = ft_strdup(line + 3);
-			map_info->no_exists = true;
-		} 
-		if (ft_strstr(line, "SO ")) 
-		{
-			map_info->south_texture = ft_strdup(line + 3);
-			map_info->so_exists = true;
-		} 
-		if (ft_strstr(line, "EA ")) 
-		{
-			map_info->east_texture = ft_strdup(line + 3);
-			map_info->ea_exists = true;
-		}
-		if (ft_strstr(line, "WE ")) 
-		{
-			map_info->west_texture = ft_strdup(line + 3);
-			map_info->we_exists = true;
-		}
-		if (!is_map_started && contains_valid_map_characters(line)) 
-		{
-			is_map_started = true;
-		}
-		if (is_map_started)
-		{
-			map_start_and_end->x = row;
-			char **new_map = malloc(sizeof(char *) * (row + 1));
-			for (int i = 0; i < row; i++) 
-				new_map[i] = temp_map[i];
-			new_map[row] = malloc(ft_strlen(line) + 1);
-			ft_strcpy_adjusted(new_map[row], line);
-			free(line);
-			free(temp_map);
-			temp_map = new_map;
-			row++;
-		}
-		else 
-			free(line);
+	    if(line[0] == '\n' && !is_map_started)
+	        continue;
+	    if (ft_strstr(line, "F "))
+	    {
+	        map_info->floor_color = ft_strdup(line + 2);
+	        map_info->f_exists = true;
+	        f_count++;
+	    }
+	    if (ft_strstr(line, "C "))
+	    {
+	        map_info->ceiling_color = ft_strdup(line + 2);
+	        map_info->c_exists = true;
+	        c_count++;
+	    }
+	    if (ft_strstr(line, "NO "))
+	    {
+	        map_info->north_texture = ft_strdup(line + 3);
+	        map_info->no_exists = true;
+	        no_count++;
+	    }
+	    if (ft_strstr(line, "SO "))
+	    {
+	        map_info->south_texture = ft_strdup(line + 3);
+	        map_info->so_exists = true;
+	        so_count++;
+	    }
+	    if (ft_strstr(line, "EA "))
+	    {
+	        map_info->east_texture = ft_strdup(line + 3);
+	        map_info->ea_exists = true;
+	        ea_count++;
+	    }
+	    if (ft_strstr(line, "WE "))
+	    {
+	        map_info->west_texture = ft_strdup(line + 3);
+	        map_info->we_exists = true;
+	        we_count++;
+	    }
+	    if (no_count > 1 || so_count > 1 || ea_count > 1 || we_count > 1 ||
+	        f_count > 1 || c_count > 1)
+	    {
+	        printf("HATA: Harita dosyasında aynı tanım birden fazla bulundu.\n");
+	        free(line);
+	        return;
+	    }
+	    if (!is_map_started && contains_valid_map_characters(line))
+	    {
+	        is_map_started = true;
+	    }
+	    if (is_map_started)
+	    {
+	        map_start_and_end->x = row;
+	        char **new_map = malloc(sizeof(char *) * (row + 1));
+	        for (int i = 0; i < row; i++)
+	            new_map[i] = temp_map[i];
+	        new_map[row] = malloc(ft_strlen(line) + 1);
+	        ft_strcpy_adjusted(new_map[row], line);
+	        free(line);
+	        free(temp_map);
+	        temp_map = new_map;
+	        row++;
+	    }
+	    else
+	        free(line);
 	}
 	map_start_and_end->y = row;
-	if (row == 0) 
+	if (row == 0)
 	{
-		printf("HATA: Harita bulunamadı.\n");
-		return;
+	    printf("HATA: Harita bulunamadı.\n");
+	    return;
 	}
 	int col = ft_strlen(temp_map[0]);
 	t_point size = {row, col, 1};
@@ -79,15 +91,15 @@ void	checkMap(int fd, char ***map_out, t_point *size_out, t_map_info *map_info)
 	size_out->y = size.y;
 	size_out->x = size.x;
 	if (!check_map_headers(fd, map_info))
-		printf("HATA: Haritanın başında yanlış var.\n");
+	    printf("HATA: Haritanın başında yanlış var.\n");
 	if (!check_top_row(*map_out, col))
-		printf("HATA: Üst satırda yalnızca '1' karakteri olmalı.\n");
-	if (!check_row_edges(*map_out, map_start_and_end->x)) 
-	 	printf("HATA: Alt satırda yalnızca '1' karakteri olmalı.\n");
-	if (!check_map_characters(*map_out, map_start_and_end->x)) 
-		printf("HATA: Haritada geçersiz karakter var.\n");
-	if (!check_zeros(*map_out, map_start_and_end->x, map_start_and_end->y)) 
-		printf("HATA: 0 ın yanıda boşlık var lo\n");
+	    printf("HATA: Üst satırda yalnızca '1' karakteri olmalı.\n");
+	if (!check_row_edges(*map_out, map_start_and_end->x))
+	    printf("HATA: Alt satırda yalnızca '1' karakteri olmalı.\n");
+	if (!check_map_characters(*map_out, map_start_and_end->x))
+	    printf("HATA: Haritada geçersiz karakter var.\n");
+	if (!check_zeros(*map_out, map_start_and_end->x, map_start_and_end->y))
+	    printf("HATA: 0'ın yanında boşluk var.\n");
 }
 
 void print_map(char **map, t_point *size)
@@ -98,20 +110,32 @@ void print_map(char **map, t_point *size)
 	}
 }
 
-void find_starting_point(char **map, t_point *size, t_point *begin) {
-    for (int i = 0; i < size->y; i++)
-	{
-        for (int j = 0; j < size->x; j++) {
-            if (map[i][j] == 'N' || map[i][j] == 'W' || map[i][j] == 'S' || map[i][j] == 'E')
-			{
-                begin->y = i;
-                begin->x = j;
-                return;
+void find_starting_point(char **map, t_point *size, t_point *begin)
+{
+    int found_count = 0;
+    int i = 0;
+    while (i < size->y) {
+        int j = 0;
+        while (j < size->x) {
+            if (map[i][j] == 'N' || map[i][j] == 'W' || map[i][j] == 'S' || map[i][j] == 'E') {
+                found_count++;
+                if (found_count == 1) {
+                    begin->y = i;
+                    begin->x = j;
+                }
+                else if (found_count > 1) {
+                    printf("HATA: Haritada birden fazla başlangıç noktası bulundu.\n");
+                    exit(1);
+                }
             }
+            j++;
         }
+        i++;
     }
-    printf("Başlangıç noktası bulunamadı.\n");
-    exit(1);
+    if (found_count == 0) {
+        printf("Başlangıç noktası bulunamadı.\n");
+        exit(1);
+    }
 }
 
 
@@ -159,7 +183,10 @@ void flood_fill(char **map, t_point *size, t_point *begin)
     }
     fill_flod(map, size, begin->y, begin->x);
     if (!check_filled_map(map, size))
-        printf("FİLLFLOOD sonrası harita hatası bulundu!\n");
+	{        
+		printf("FİLLFLOOD sonrası harita hatası bulundu!\n");
+		exit(1);
+	}
 	
 }
 

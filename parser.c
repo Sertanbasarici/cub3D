@@ -115,10 +115,8 @@ void set_texture_or_color(char **tokens, t_map_info *map_info)
 void freedouble(char **array)
 {
     int i;
-
     if (!array)
         return;
-
     i = 0;
     while (array[i])
     {
