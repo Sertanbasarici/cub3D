@@ -30,8 +30,8 @@ int parse_and_validate_variables(char **lines, t_map_info *map_info)
     int texture_or_color_checked = 0;
     int line_count = 0;
     
-    map_info->fclor = malloc(sizeof(int) *3);
-    map_info->cclor = malloc(sizeof(int) *3);
+    map_info->fclor = malloc(sizeof(char) *4);
+    map_info->cclor = malloc(sizeof(char) *4);
     //if (malloc)
 
     while (lines[i])

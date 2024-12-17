@@ -8,8 +8,8 @@ SO                                   ./textures/south.xpm
 EA                                                         ./textures/east.xpm
 
 
-F                                        220 , 100 , 213,123
-C    225,                  123,                                                         112
+F                                        255,0, 0
+C    0,                  255,                                                         0
 
 
 11111

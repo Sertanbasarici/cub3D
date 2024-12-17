@@ -109,8 +109,8 @@ typedef struct s_map_info {
     bool ea_exists;
     bool f_exists;
     bool c_exists;
-    int *fclor;
-    int *cclor;
+    char *fclor;
+    char *cclor;
 	char	**maps;
 } t_map_info;
 

@@ -324,10 +324,10 @@ void    get_figures(t_data *data, t_map_info *map_info)
     data->height = y;
 }
 
-void    get_color_c_and_f(t_data *data)
+void    get_color_c_and_f(t_data *data, t_map_info s_map_info)
 {
-    data->ceil_color = 0x0000FF;
-    data->floor_color = 0xFFFFFF;
+    data->ceil_color = *(int*) s_map_info.cclor;
+    data->floor_color =*(int*) s_map_info.fclor;
 }
 void    init_data(t_data *data, t_point *locations, t_point *size)
 {
@@ -359,7 +359,7 @@ void    start_functions(t_data *data, t_map_info *map_info)
     data->mlx_ptr = mlx_init();
     data->win_ptr = mlx_new_window(data->mlx_ptr, screenWidth, screenHeight, "new");
     big_img(data);
-    get_color_c_and_f(data);
+    get_color_c_and_f(data, *map_info);
     get_figures(data, map_info);
     raycasting(data);
     mlx_hook(data->win_ptr, 2, 1L << 0, key_press, NULL);
