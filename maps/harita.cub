@@ -5,19 +5,19 @@ WE                                                ./textures/west.xpm
 
 
 SO                                   ./textures/south.xpm
-EA                                                         ./textures/east.xpm
+EA                                                       ./textures/east.xpm
 
 
-F                                        255,0, 0
-C    0,                  255,                                                         0
+F                                        255,0,0
+C                   0,                  0,                                                         255
 
 
 11111
-10N01
+10001
+10W01
 10001
 10001
 10001
 10001
-10001
-10111
-111
+10101
+11111

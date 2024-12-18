@@ -20,6 +20,8 @@ int check_rgb_values(char *rgb)
     value = ft_atoi(rgb);
     if (value < 0 || value > 255)
         return (-1);
+    //printf("%s \n", rgb);
+    //printf("%d \n", value);
     return (value);
 }
 
@@ -32,8 +34,6 @@ int parse_and_validate_variables(char **lines, t_map_info *map_info)
     
     map_info->fclor = malloc(sizeof(char) *4);
     map_info->cclor = malloc(sizeof(char) *4);
-    //if (malloc)
-
     while (lines[i])
     {
         if (lines[i][0] == '\0' || lines[i][0] == '\n')
@@ -50,15 +50,17 @@ int parse_and_validate_variables(char **lines, t_map_info *map_info)
         if (lines[i][0] == 'F' || lines[i][0] == 'C')
         {
             char **rgb_values = ft_split(lines[i]+1, ',');
-            //if (rgb_values[]) is digit kontrol et
             if (lines[i][0] == 'F')
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    map_info->fclor[j] =(unsigned char)check_rgb_values(ft_strtrim(rgb_values[2 - j], " "));
+                    printf("%d \n", map_info->fclor[j]);
+                }
+            }
+           if (lines[i][0] == 'C')
                 for (int j = 0; rgb_values[j]; j++)
-                    map_info->fclor[j]= check_rgb_values(ft_strtrim(rgb_values[j], " "));
-            if (lines[i][0] == 'C')
-                for (int j = 0; rgb_values[j]; j++)
-                    map_info->cclor[j]= check_rgb_values(ft_strtrim(rgb_values[j], " "));
-            // if (j!=3)
-            //     return(-1);
+                    map_info->cclor[j]= (unsigned char)check_rgb_values(ft_strtrim(rgb_values[2 - j], " "));
         }
         else if (lines[i][0] == '1' || lines[i][0] == '0')
         {

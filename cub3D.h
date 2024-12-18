@@ -62,6 +62,7 @@ typedef struct p_data
 typedef struct s_data
 {
 	player_data	player;
+	char		location_side;
 	void		*mlx_ptr;
 	void		*win_ptr;
 	t_img		big_img;
@@ -109,8 +110,8 @@ typedef struct s_map_info {
     bool ea_exists;
     bool f_exists;
     bool c_exists;
-    char *fclor;
-    char *cclor;
+    unsigned char *fclor;
+    unsigned char *cclor;
 	char	**maps;
 } t_map_info;
 
@@ -151,6 +152,5 @@ void	freedouble(char **array);
 int		ft_strcmp(const char *s1, const char *s2);
 char	**read_lines_from_file(int fd);
 bool    check_row_edges(char **map, int row);
-char *ft_strreplace(char *str, char old_char, char new_char);
 
 #endif

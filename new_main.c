@@ -14,36 +14,6 @@ int ft_error(int num, char *str)
     return (0);
 }
 
-int worldMap[Width][Height]=
-{
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
-  {1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
-  {1,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
-};
-
-
 int	create_trgb(int t, int r, int g, int b)
 {
 	return (t << 24 | r << 16 | g << 8 | b);
@@ -104,7 +74,6 @@ void    raycasting_DDA(t_data *data)
             data->player.mapY += data->stepY;
             data->side = 1;
         }
-        printf("%d \n", data->hit);
         if (data->_map_[data->player.mapY][data->player.mapX] == '1')
             data->hit = 1;
     }
@@ -135,6 +104,7 @@ void    raycasting_continue(t_data *data)
         data->player.sideDistY = (data->player.mapY + 1.0 - data->player.posY) * data->deltaDistY;
     }
 }
+
 void    avoid_fisheye(t_data *data)
 {
     if (data->side == 0)
@@ -172,6 +142,7 @@ void    handle_textures(t_data *data)
     }
     data->y = 0;
 }
+
 void    raycasting_starts(t_data *data)
 {
     data->x = 0;
@@ -204,11 +175,11 @@ int draw_scene(t_data *data)
     mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, data->big_img.img, 0, 0);
     return 0;
 }
+
 int key_press()
 {
     return (0);
 }
-
 
 void    close_screen(int keycode, t_data *data)
 {
@@ -329,17 +300,53 @@ void    get_color_c_and_f(t_data *data, t_map_info s_map_info)
     data->ceil_color = *(int*) s_map_info.cclor;
     data->floor_color =*(int*) s_map_info.fclor;
 }
+
+void    decide_direction_2(t_data *data)
+{
+    if (data->location_side == 'W')
+    {
+        data->player.dirX = -1;
+        data->player.dirY = 0;
+        data->player.planeX = 0;
+        data->player.planeY = 0.66;
+    }
+    if (data->location_side == 'E')
+    {
+        data->player.dirX = 1;
+        data->player.dirY = 0;
+        data->player.planeX = 0;
+        data->player.planeY = -0.66;
+    }
+}
+
+void    decide_direction(t_data *data)
+{
+    if (data->location_side == 'N')
+    {
+        data->player.dirX = 0;
+        data->player.dirY = -1;
+        data->player.planeX = -0.66;
+        data->player.planeY = 0;
+    }
+    if (data->location_side == 'S')
+    {
+        data->player.dirX = 0;
+        data->player.dirY = 1;
+        data->player.planeX = 0.66;
+        data->player.planeY = 0;
+    }
+    decide_direction_2(data);
+}
+
 void    init_data(t_data *data, t_point *locations, t_point *size)
 {
     (void)size;
 	data->y = 0;
-    data->player.posX = locations->x + 0.01;
-    data->player.posY = locations->y + 0.01;
+    data->player.posX = locations->x + 0.1;
+    data->player.posY = locations->y + 0.1;
+    data->location_side = data->_map_[locations->y][locations->x];
     data->_map_[locations->y][locations->x] = '0';
-    data->player.dirX = -1;
-    data->player.dirY = 0;
-    data->player.planeX = 0;
-    data->player.planeY = 0.66;
+    decide_direction(data);
     data->wall_x = 0;
     data->tex_x = 0;
     data->tex_y = 0;
@@ -445,13 +452,17 @@ int main(int argc, char **argv)
     close(fd_copy);
     data->size_abc = size;
     find_starting_point(map_info.maps, size, begin);
-    printf("%s \n", map_info.east_texture);
-    printf("%s \n", map_info.west_texture);
-    printf("%s \n", map_info.south_texture);
-    printf("%s \n", map_info.north_texture);
     copy_map(map_info.maps, &data->_map_, *size);
     get_path(&map_info);
     flood_fill(map_info.maps, size, begin);
+    int a; 
+    a = 0;
+    while (a < 3)
+    {
+        printf("%c \n", map_info.fclor[0]);
+        a++;
+    }
+
     init_data(data, begin, size);
     start_functions(data, &map_info);
     return 0;
