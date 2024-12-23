@@ -60,7 +60,8 @@ typedef struct p_data
 }	player_data;
 
 
-typedef struct s_map_info {
+typedef struct s_map_info
+{
     char			*north_texture;
     char			*south_texture;
     char			*west_texture;
@@ -77,55 +78,66 @@ typedef struct s_map_info {
     unsigned char	*cclor;
 	char			**maps;
 	char			**rgb_values;
+	char			**temp_map;
+	int				no_count;
+	int				so_count;
+	int				ea_count;
+	int				we_count;
+	int				f_count;
+	int				c_count;
+	bool			is_map_started;
+	char			**tokens;
+	t_point			*map_start_and_end;
 } t_map_info;
 
 typedef struct s_rgb
 {
-    int r;
-    int g;
-    int b;
-
+	int r;
+	int g;
+	int b;
 } t_rgb;
 
 typedef struct s_data
 {
-	player_data	player;
-	char		location_side;
-	void		*mlx_ptr;
-	void		*win_ptr;
-	t_img		big_img;
-	t_img		east;
-	t_img		north;
-	t_img		south;
-	t_img		west;
-	int			width;
-	int			height;
-	double		wall_x;
-	int			tex_x;
-	int			tex_y;
-	double		step;
-	double		tex_pos;
-	int			y;
-	int			x;
-	double		deltaDistX;
-	double		deltaDistY;
-	int			hit;
-	int			stepX;
-	int			stepY;
-	int			color;
-	int			drawStart;
-	int			drawEnd;
-	double		perpWallDist;
-	int			ceil_color;
-	int			floor_color;
-	int			lineHeight;
-	int			side;
-	double		movespeed;
-	char		**_map_;
-	t_point		*size_abc;
-	char		**lines;
+	player_data		player;
+	char			location_side;
+	void			*mlx_ptr;
+	void			*win_ptr;
+	t_img			big_img;
+	t_img			east;
+	t_img			north;
+	t_img			south;
+	t_img			west;
+	int				width;
+	int				height;
+	double			wall_x;
+	int				tex_x;
+	int				tex_y;
+	double			step;
+	double			tex_pos;
+	int				y;
+	int				x;
+	double			deltaDistX;
+	double			deltaDistY;
+	int				hit;
+	int				stepX;
+	int				stepY;
+	int				color;
+	int				drawStart;
+	int				drawEnd;
+	double			perpWallDist;
+	int				ceil_color;
+	int				floor_color;
+	int				lineHeight;
+	int				side;
+	double			movespeed;
+	char			**_map_;
+	t_point			*size_abc;
+	char			**lines;
 	char			**rgb_values;
 	t_map_info		*t_map_info;
+	t_rgb			*rgb;
+
 }	t_data;
 
 
@@ -153,7 +165,8 @@ void	set_texture_or_color(char **tokens, t_map_info *map_info);
 int		parse_and_validate_variables(char **lines, t_map_info *map_info);
 void	freedouble(char **array);
 int		ft_strcmp(const char *s1, const char *s2);
-char	**read_lines_from_file(int fd);
+char	**read_lines_from_file(int fd, char *path);
 bool    check_row_edges(char **map, int row);
+void	init_values(t_map_info *map_info);
 
 #endif

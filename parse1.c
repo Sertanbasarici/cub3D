@@ -1,104 +1,114 @@
 
 #include "cub3D.h"
 
+void	init_values(t_map_info *map_info)
+{
+	map_info->so_count = 0;
+	map_info->no_count = 0;
+	map_info->c_count = 0;
+	map_info->ea_count = 0;
+	map_info->we_count = 0;
+	map_info->f_count = 0;
+	map_info->temp_map = NULL;
+	map_info->is_map_started = false;
+	map_info->map_start_and_end = malloc(sizeof(t_point));
+}
 
 void	checkMap(int fd, char ***map_out, t_point *size_out, t_map_info *map_info)
 {
 	char *line;
-	char **temp_map = NULL;
 	int row = 0;
-	bool is_map_started = false;
-	t_point *map_start_and_end = malloc(sizeof(t_point));
-	int no_count = 0, so_count = 0, ea_count = 0, we_count = 0;
-	int f_count = 0, c_count = 0;
+	init_values(map_info);
 	while ((line = get_next_line(fd)))
 	{
-	    if(line[0] == '\n' && !is_map_started)
+	    if(line[0] == '\n' && !map_info->is_map_started)
 	        continue;
 	    if (ft_strstr(line, "F "))
 	    {
 	        map_info->floor_color = ft_strdup(line + 2);
 	        map_info->f_exists = true;
-	        f_count++;
+	        map_info->f_count++;
 	    }
 	    if (ft_strstr(line, "C "))
 	    {
 	        map_info->ceiling_color = ft_strdup(line + 2);
 	        map_info->c_exists = true;
-	        c_count++;
+	        map_info->c_count++;
 	    }
 	    if (ft_strstr(line, "NO "))
 	    {
 	        map_info->north_texture = ft_strdup(line + 3);
 	        map_info->no_exists = true;
-	        no_count++;
+	        map_info->no_count++;
 	    }
 	    if (ft_strstr(line, "SO "))
 	    {
 	        map_info->south_texture = ft_strdup(line + 3);
 	        map_info->so_exists = true;
-	        so_count++;
+	        map_info->so_count++;
 	    }
 	    if (ft_strstr(line, "EA "))
 	    {
 	        map_info->east_texture = ft_strdup(line + 3);
 	        map_info->ea_exists = true;
-	        ea_count++;
+	        map_info->ea_count++;
 	    }
 	    if (ft_strstr(line, "WE "))
 	    {
 	        map_info->west_texture = ft_strdup(line + 3);
 	        map_info->we_exists = true;
-	        we_count++;
+	        map_info->we_count++;
 	    }
-	    if (no_count > 1 || so_count > 1 || ea_count > 1 || we_count > 1 ||
-	        f_count > 1 || c_count > 1)
+	    if (map_info->no_count > 1 || map_info->so_count > 1 || map_info->ea_count > 1 || map_info->we_count > 1 ||
+	        map_info->f_count > 1 || map_info->c_count > 1)
 	    {
 	        printf("HATA: Harita dosyasında aynı tanım birden fazla bulundu.\n");
 	        free(line);
 	        return;
 	    }
-	    if (!is_map_started && contains_valid_map_characters(line))
+
+	    if (!map_info->is_map_started && contains_valid_map_characters(line))
 	    {
-	        is_map_started = true;
+	        map_info->is_map_started = true;
 	    }
-	    if (is_map_started)
+	    if (map_info->is_map_started)
 	    {
-	        map_start_and_end->x = row;
+	        map_info->map_start_and_end->x = row;
 	        char **new_map = malloc(sizeof(char *) * (row + 1));
 	        for (int i = 0; i < row; i++)
-	            new_map[i] = temp_map[i];
+	            new_map[i] = map_info->temp_map[i];
 	        new_map[row] = malloc(ft_strlen(line) + 1);
 	        ft_strcpy_adjusted(new_map[row], line);
 	        free(line);
-	        free(temp_map);
-	        temp_map = new_map;
+	        free(map_info->temp_map);
+	        map_info->temp_map = new_map;
 	        row++;
 	    }
 	    else
-	        free(line);
+			free(line);
+		
 	}
-	map_start_and_end->y = row;
+	map_info->map_start_and_end->y = row;
 	if (row == 0)
 	{
 	    printf("HATA: Harita bulunamadı.\n");
 	    return;
 	}
-	int col = ft_strlen(temp_map[0]);
+	int col = ft_strlen(map_info->temp_map[0]);
 	t_point size = {row, col, 1};
-	map_spaces(&temp_map, &size);
-	*map_out = temp_map;
+	map_spaces(&map_info->temp_map, &size);
+	*map_out = map_info->temp_map;
 	size_out->y = size.y;
 	size_out->x = size.x;
 	if (!check_map_headers(fd, map_info))
 	    printf("HATA: Haritanın başında yanlış var.\n");
 	if (!check_top_row(*map_out, col))
 	    printf("HATA: Üst satırda yalnızca '1' karakteri olmalı.\n");
-	if (!check_row_edges(*map_out, map_start_and_end->x))
+	if (!check_row_edges(*map_out, map_info->map_start_and_end->x))
 	    printf("HATA: Alt satırda yalnızca '1' karakteri olmalı.\n");
-	if (!check_map_characters(*map_out, map_start_and_end->x))
+	if (!check_map_characters(*map_out, map_info->map_start_and_end->x))
 	    printf("HATA: Haritada geçersiz karakter var.\n");
-	if (!check_zeros(*map_out, map_start_and_end->x, map_start_and_end->y))
+	if (!check_zeros(*map_out, map_info->map_start_and_end->x, map_info->map_start_and_end->y))
 	    printf("HATA: 0'ın yanında boşluk var.\n");
 }
 
