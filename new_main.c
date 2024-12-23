@@ -1,10 +1,43 @@
 #include "cub3D.h"
 
-int	close_window(void *param)
+void    free_lines(char **data)
 {
-	(void)param;
-	system("leaks cub3D");
+    int i;
+
+    i = 0;
+    while (data[i])
+        free(data[i++]);
+    free(data);
+}
+
+void    free_map_info(t_data *data)
+{
+    free(data->t_map_info->east_texture);
+    free(data->t_map_info->west_texture);
+    free(data->t_map_info->north_texture);
+    free(data->t_map_info->south_texture);
+}
+
+int	close_window(t_data *data)
+{
+    free_lines(data->rgb_values);
+    free_lines(data->lines);
+    free_map_info(data);
+    mlx_destroy_image(data->mlx_ptr, data->win_ptr);
+	mlx_destroy_window(data->mlx_ptr, data->win_ptr);
 	exit(0);
+}
+void    close_screen(int keycode, t_data *data)
+{
+    if (keycode == ESC)
+    {
+        free_lines(data->rgb_values);
+        free_lines(data->lines);
+        free_map_info(data);
+        mlx_destroy_window(data->mlx_ptr, data->win_ptr);
+        mlx_destroy_display(data->mlx_ptr);
+        exit(0);
+    }
 }
 
 int ft_error(int num, char *str)
@@ -12,11 +45,6 @@ int ft_error(int num, char *str)
     if (num == 1)
         ft_putstr_fd(str, 2);
     return (0);
-}
-
-int	create_trgb(int t, int r, int g, int b)
-{
-	return (t << 24 | r << 16 | g << 8 | b);
 }
 
 void	img_pix_put(t_img *img, int x, int y, int color)
@@ -59,7 +87,6 @@ void	calc_texture_pixel_color(t_data *data, int x)
 
 void    raycasting_DDA(t_data *data)
 {
-    print_map(data->_map_, data->size_abc);
     while (data->hit == 0)
     {
         if (data->player.sideDistX < data->player.sideDistY)
@@ -181,15 +208,6 @@ int key_press()
     return (0);
 }
 
-void    close_screen(int keycode, t_data *data)
-{
-    if (keycode == ESC)
-    {
-        mlx_destroy_window(data->mlx_ptr, data->win_ptr);
-        exit(0);
-    }
-}
-
 void    move_r_and_l(int keycode, t_data *data)
 {
     if (keycode == key_D)
@@ -280,7 +298,6 @@ void    get_figures(t_data *data, t_map_info *map_info)
 {
     int     x;
     int     y;
-    printf("%s dfsaf\n", map_info->east_texture);
     data->east.img = mlx_xpm_file_to_image(data->mlx_ptr, map_info->east_texture, &x, &y);
     data->north.img = mlx_xpm_file_to_image(data->mlx_ptr, map_info->north_texture, &x, &y);
     data->south.img = mlx_xpm_file_to_image(data->mlx_ptr, map_info->south_texture, &x, &y);
@@ -299,6 +316,8 @@ void    get_color_c_and_f(t_data *data, t_map_info s_map_info)
 {
     data->ceil_color = *(int*) s_map_info.cclor;
     data->floor_color =*(int*) s_map_info.fclor;
+    free(s_map_info.cclor);
+    free(s_map_info.fclor);
 }
 
 void    decide_direction_2(t_data *data)
@@ -338,7 +357,7 @@ void    decide_direction(t_data *data)
     decide_direction_2(data);
 }
 
-void    init_data(t_data *data, t_point *locations, t_point *size)
+void    init_data(t_data *data, t_point *locations, t_point *size, t_point *begin)
 {
     (void)size;
 	data->y = 0;
@@ -354,6 +373,8 @@ void    init_data(t_data *data, t_point *locations, t_point *size)
     data->tex_pos = 0;
     data->color = 0;
     data->movespeed = 0.5;
+    free(size);
+    free(begin);
 }
 
 void    raycasting(t_data *data)
@@ -363,6 +384,7 @@ void    raycasting(t_data *data)
 
 void    start_functions(t_data *data, t_map_info *map_info)
 {
+    data->rgb_values = map_info->rgb_values;
     data->mlx_ptr = mlx_init();
     data->win_ptr = mlx_new_window(data->mlx_ptr, screenWidth, screenHeight, "new");
     big_img(data);
@@ -371,25 +393,25 @@ void    start_functions(t_data *data, t_map_info *map_info)
     raycasting(data);
     mlx_hook(data->win_ptr, 2, 1L << 0, key_press, NULL);
     mlx_key_hook(data->win_ptr, key_hook, data);
-    mlx_hook(data->win_ptr, 17, 0, close_window, NULL);
+    mlx_hook(data->win_ptr, 17, 0, close_window, data);
     mlx_loop(data->mlx_ptr);
 
 }
 
-void    copy_map(char **source, char ***dest, t_point size)
+void    copy_map(char **source, t_data *data, t_point size)
 {
-    char **new_dest;
     int i;
 
     i = 0;
-    new_dest = malloc(sizeof(char *) * size.y + 1);
+    printf("%d \n", size.y);
+    printf("%d \n", size.x);
+    data->_map_ = malloc(sizeof(char *) * size.y + 1);
     while (i < size.y)
     {
-        new_dest[i] = ft_strdup(source[i]);
+        data->_map_[i] = ft_strdup(source[i]);
         i++;
     }
-    new_dest[i] = NULL;
-    *(dest) = new_dest;
+    data->_map_[i] = 0;
 }
 
 char    *adjust_path(char *str)
@@ -402,7 +424,9 @@ char    *adjust_path(char *str)
     i = -1;
     while (str[++i] == ' ');
     i += 2;
-    new_str = malloc(sizeof(char) * (ft_strlen(str) - i));
+    new_str = malloc(sizeof(char) * ((ft_strlen(str) - i) + 1));
+    if (!new_str)
+        return NULL;
     while (str[i] != '\n')
         new_str[j++] = str[i++];
     new_str[j] = '\0';
@@ -416,11 +440,13 @@ void    get_path(t_map_info *map_info)
     map_info->west_texture = adjust_path(map_info->west_texture);
     map_info->north_texture = adjust_path(map_info->north_texture);
     map_info->south_texture = adjust_path(map_info->south_texture);
+    //pause();
 }
 
 int main(int argc, char **argv)
 {
-    if (argc != 2) {
+    if (argc != 2)
+    {
         printf("Kullanım: %s <harita_dosyası>\n", argv[0]);
         return 1;
     }
@@ -436,34 +462,26 @@ int main(int argc, char **argv)
     }
     t_data *data = malloc(sizeof(t_data));
     t_map_info map_info;
-    map_info.maps = NULL;
-    data->_map_ = NULL;
     t_point *size = malloc(sizeof(t_point));
     t_point *begin = malloc(sizeof(t_point));
+    data->t_map_info = &map_info;
     size->err = 0;
-    char **lines = read_lines_from_file(fd);
-    if (parse_and_validate_variables(lines, &map_info) == -1)
+    data->lines = read_lines_from_file(fd);
+    if (parse_and_validate_variables(data->lines, &map_info) == -1)
 	{
         printf("Hatalı harita bilgileri!\n");
         return 1;
     }
+
     int fd_copy = open(argv[1], O_RDONLY);
     checkMap(fd_copy, &map_info.maps, size, &map_info);
     close(fd_copy);
     data->size_abc = size;
     find_starting_point(map_info.maps, size, begin);
-    copy_map(map_info.maps, &data->_map_, *size);
+    copy_map(map_info.maps, data, *size);
     get_path(&map_info);
     flood_fill(map_info.maps, size, begin);
-    int a; 
-    a = 0;
-    while (a < 3)
-    {
-        printf("%c \n", map_info.fclor[0]);
-        a++;
-    }
-
-    init_data(data, begin, size);
+    init_data(data, begin, size, begin);
     start_functions(data, &map_info);
     return 0;
 }

@@ -59,6 +59,34 @@ typedef struct p_data
 	double	sideDistY;
 }	player_data;
 
+
+typedef struct s_map_info {
+    char			*north_texture;
+    char			*south_texture;
+    char			*west_texture;
+    char			*east_texture;
+    char			*floor_color;
+    char			*ceiling_color;
+    bool			no_exists;
+    bool			so_exists;
+    bool			we_exists;
+    bool			ea_exists;
+    bool			f_exists;
+    bool			c_exists;
+    unsigned char	*fclor;
+    unsigned char	*cclor;
+	char			**maps;
+	char			**rgb_values;
+} t_map_info;
+
+typedef struct s_rgb
+{
+    int r;
+    int g;
+    int b;
+
+} t_rgb;
+
 typedef struct s_data
 {
 	player_data	player;
@@ -95,35 +123,10 @@ typedef struct s_data
 	double		movespeed;
 	char		**_map_;
 	t_point		*size_abc;
+	char		**lines;
+	char			**rgb_values;
+	t_map_info		*t_map_info;
 }	t_data;
-
-typedef struct s_map_info {
-    char *north_texture;
-    char *south_texture;
-    char *west_texture;
-    char *east_texture;
-    char *floor_color;
-    char *ceiling_color;
-    bool no_exists;
-    bool so_exists;
-    bool we_exists;
-    bool ea_exists;
-    bool f_exists;
-    bool c_exists;
-    unsigned char *fclor;
-    unsigned char *cclor;
-	char	**maps;
-} t_map_info;
-
-
-
-typedef struct s_rgb
-{
-    int r;
-    int g;
-    int b;
-
-} t_rgb;
 
 
 char	*ft_strstr(const char *haystack, const char *needle);

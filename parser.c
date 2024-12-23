@@ -49,18 +49,17 @@ int parse_and_validate_variables(char **lines, t_map_info *map_info)
         }
         if (lines[i][0] == 'F' || lines[i][0] == 'C')
         {
-            char **rgb_values = ft_split(lines[i]+1, ',');
+            map_info->rgb_values = ft_split(lines[i]+1, ',');
             if (lines[i][0] == 'F')
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    map_info->fclor[j] =(unsigned char)check_rgb_values(ft_strtrim(rgb_values[2 - j], " "));
-                    printf("%d \n", map_info->fclor[j]);
+                    map_info->fclor[j] = (unsigned char)check_rgb_values(ft_strtrim(map_info->rgb_values[2 - j], " "));
                 }
             }
            if (lines[i][0] == 'C')
-                for (int j = 0; rgb_values[j]; j++)
-                    map_info->cclor[j]= (unsigned char)check_rgb_values(ft_strtrim(rgb_values[2 - j], " "));
+                for (int j = 0; j < 3; j++)
+                    map_info->cclor[j]= (unsigned char)check_rgb_values(ft_strtrim(map_info->rgb_values[2 - j], " "));
         }
         else if (lines[i][0] == '1' || lines[i][0] == '0')
         {
