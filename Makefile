@@ -2,7 +2,7 @@ NAME = cub3D
 
 CC = gcc
 
-CFLAGS = -Wall -Wextra -Werror -Iminilibx-linux -lm -g
+CFLAGS = -Wall -Wextra -Werror -Iminilibx-linux -lm -g #-fsanitize=address
 
 SOURCE = 	gnl/get_next_line.c gnl/get_next_line_utils.c new_main.c parser.c map_check.c parse1.c before_map.c
 OBJ = $(SOURCE:.c=.o)

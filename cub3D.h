@@ -168,5 +168,9 @@ int		ft_strcmp(const char *s1, const char *s2);
 char	**read_lines_from_file(int fd, char *path);
 bool    check_row_edges(char **map, int row);
 void	init_values(t_map_info *map_info);
+int		num_of_nl(int fd);
+int		find_nl(char *buffer);
+int		len_string(char **str);
+
 
 #endif

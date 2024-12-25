@@ -4,8 +4,11 @@ void    free_lines(char **data)
 {
 	int i;
 
+	if (!data)
+		return;
 	i = 0;
-	while (data[i] != NULL)
+
+	while (data[i])
 		free(data[i++]);
 	free(data);
 }
@@ -18,17 +21,8 @@ void    free_map_info(t_data *data)
 	free(data->t_map_info->south_texture);
 }
 
-int	close_window(t_data *data)
+void	free_images(t_data *data)
 {
-	free_lines(data->rgb_values);
-	free_lines(data->lines);
-	free_lines(data->_map_);
-	free(data->t_map_info->fclor);
-	free(data->t_map_info->cclor);
-	free(data->t_map_info->map_start_and_end);
-	free_lines(data->t_map_info->temp_map);
-	free_lines(data->t_map_info->tokens);
-	free_map_info(data);
 	mlx_destroy_image(data->mlx_ptr, data->east.img);
 	mlx_destroy_image(data->mlx_ptr, data->west.img);
 	mlx_destroy_image(data->mlx_ptr, data->north.img);
@@ -36,6 +30,20 @@ int	close_window(t_data *data)
 	mlx_destroy_image(data->mlx_ptr, data->big_img.img);
 	mlx_destroy_window(data->mlx_ptr, data->win_ptr);
 	mlx_destroy_display(data->mlx_ptr);
+}
+
+int	close_window(t_data *data)
+{
+	free_lines(data->rgb_values);
+	// free_lines(data->lines);
+	free_lines(data->_map_);
+	free(data->t_map_info->fclor);
+	free(data->t_map_info->cclor);
+	free(data->t_map_info->map_start_and_end);
+	free_lines(data->t_map_info->temp_map);
+	free_lines(data->t_map_info->tokens);
+	free_map_info(data);
+	free_images(data);
 	free(data->mlx_ptr);
 	free(data);
 	exit(0);
@@ -45,19 +53,13 @@ void	close_screen(int keycode, t_data *data)
 	if (keycode == ESC)
 	{
 		free_lines(data->rgb_values);
-		free_lines(data->lines);
+		// free_lines(data->lines);
 		free_lines(data->_map_);
 		free_lines(data->t_map_info->temp_map);
 		free_lines(data->t_map_info->tokens);
 		free(data->t_map_info->map_start_and_end);
 		free_map_info(data);
-		mlx_destroy_image(data->mlx_ptr, data->east.img);
-		mlx_destroy_image(data->mlx_ptr, data->west.img);
-		mlx_destroy_image(data->mlx_ptr, data->north.img);
-		mlx_destroy_image(data->mlx_ptr, data->south.img);
-		mlx_destroy_image(data->mlx_ptr, data->big_img.img);
-		mlx_destroy_window(data->mlx_ptr, data->win_ptr);
-		mlx_destroy_display(data->mlx_ptr);
+		free_images(data);
 		free(data->mlx_ptr);
 		free(data);
 		exit(0);
@@ -435,7 +437,6 @@ void    copy_map(char **source, t_data *data, t_point size)
 	}
 	data->_map_[i] = NULL;
 	print_map(data->_map_, &size);
-	// pause();
 }
 
 char    *adjust_path(char *str)
@@ -486,24 +487,28 @@ int main(int argc, char **argv)
 	t_data *data = malloc(sizeof(t_data));
 	t_map_info map_info;
 	t_point *size = malloc(sizeof(t_point));
-	t_point *begin = malloc(sizeof(t_point));
+	// t_point *begin = malloc(sizeof(t_point));
 	data->t_map_info = &map_info;
 	size->err = 0;
 	data->lines = read_lines_from_file(fd, argv[1]);
-	if (parse_and_validate_variables(data->lines, &map_info) == -1)
-	{
-		printf("Hatalı harita bilgileri!\n");
-		return 1;
-	}
-	int fd_copy = open(argv[1], O_RDONLY);
-	checkMap(fd_copy, &map_info.maps, size, &map_info);
-	close(fd_copy);
-	data->size_abc = size;
-	find_starting_point(map_info.maps, size, begin);
-	copy_map(map_info.maps, data, *size);
-	get_path(&map_info);
-	flood_fill(map_info.maps, size, begin);
-	init_data(data, begin, size, begin);
-	start_functions(data, &map_info);
+	parse_and_validate_variables(data->lines, &map_info);
+	free_lines(data->lines);
+	free(data);
+	free(size);
+	// if (parse_and_validate_variables(data->lines, &map_info) == -1)
+	// {
+	// 	printf("Hatalı harita bilgileri!\n");
+	// 	return 1;
+	// }
+	// int fd_copy = open(argv[1], O_RDONLY);
+	// checkMap(fd_copy, &map_info.maps, size, &map_info);
+	// close(fd_copy);
+	// data->size_abc = size;
+	// find_starting_point(map_info.maps, size, begin);
+	// copy_map(map_info.maps, data, *size);
+	// get_path(&map_info);
+	// flood_fill(map_info.maps, size, begin);
+	// init_data(data, begin, size, begin);
+	// start_functions(data, &map_info);
 	return 0;
 }

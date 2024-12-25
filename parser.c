@@ -56,21 +56,21 @@ int parse_and_validate_variables(char **lines, t_map_info *map_info)
 		}
 		else if (lines[i][0] == '1' || lines[i][0] == '0')
 		{
-			if (!texture_or_color_checked) {
+			if (!texture_or_color_checked)
+			{
 				printf("Hata: Harita başlamadan önce texture/renk bilgisi eksik!\n");
 				return (-1);
 			}
 		}
 		line_count++;
-		if (line_count <= 6) {
+		if (line_count <= 6)
+		{
 			texture_or_color_checked = 1;
 		}
 		i++;
 	}
 	return check_map_textures_and_colors(map_info);
 }
-
-
 
 int check_map_textures_and_colors(t_map_info *map_info)
 {
@@ -131,6 +131,16 @@ int ft_strcmp(const char *s1, const char *s2)
 	return (*(unsigned char *)s1 - *(unsigned char *)s2);
 }
 
+int	len_string(char **str)
+{
+	int		i;
+
+	i = 0;
+	while (str[i] != NULL)
+		i++;
+	return (i);
+}
+
 
 int	find_nl(char *buffer)
 {
@@ -152,6 +162,7 @@ int	num_of_nl(int fd)
 	{
 		if (find_nl(buffer))
 			counter++;
+		free(buffer);
 	}
 	close(fd);
 	return (counter);
@@ -159,9 +170,8 @@ int	num_of_nl(int fd)
 
 char **read_lines_from_file(int fd, char *path)
 {
-	char **lines = malloc(sizeof(char *) * (num_of_nl(fd)) + 1);
+	char **lines = ft_calloc((num_of_nl(fd)) + 1, (sizeof(char *)));
 	char *line;
-
 	int i = 0;
 	fd = open(path, O_RDONLY);
 	while ((line = get_next_line(fd)) != NULL)
